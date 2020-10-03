@@ -1,6 +1,6 @@
 <div align="center">
     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Matlab_Logo.png/667px-Matlab_Logo.png" style="vertical-align: middle;" width="100px"/>
-    <span style="vertical-align: middle; color:white;font-weight:bold; font-size: 280%;">MATLAB GRADER SCRAPER </span>
+    <span style="vertical-align: middle; color:white;font-weight:bold; font-size: 40px;">MATLAB GRADER SCRAPER </span>
 </div>
 
 ---
