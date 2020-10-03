@@ -7,7 +7,22 @@
 
 # grader: powerful Python matlab grader scraping toolkit
 
-[![Package Status](https://img.shields.io/pypi/status/pandas.svg)](https://pypi.org/project/pandas/)
+[![Package Status](https://img.shields.io/pypi/status/pandas.svg)]()
+[![Package Versions][pyversion-button]]()
+
+[md-pypi]: https://pypi.org/project/Markdown/
+[pyversion-button]: https://img.shields.io/pypi/pyversions/Markdown.svg
+
+This is a Python implementation of John Gruber's [Markdown][].
+It is almost completely compliant with the reference implementation,
+though there are a few known issues. See [Features][] for information
+on what exactly is supported and what is not. Additional features are
+supported by the [Available Extensions][].
+
+[python-markdown]: https://Python-Markdown.github.io/
+[markdown]: https://daringfireball.net/projects/markdown/
+[features]: https://Python-Markdown.github.io#Features
+[available extensions]: https://Python-Markdown.github.io/extensions
 
 ## What is it?
 
@@ -42,13 +57,13 @@ https://github.com/sarmientoF/grader.git
 
 ```sh
 # PyPI
-pip install git+https://github.com/sarmientoF/grader.git
+pip3 install git+https://github.com/sarmientoF/grader.git
 
 ```
 
 ## How to use it
 
-- You must be loggeg with matlab grader account using `Firefox` browser
+- You must be logged with matlab grader account using `Firefox` browser
 
 ```python
 import grader
