@@ -68,7 +68,7 @@ def getPage(url, name):
 
 
 def getCodes(fileName):
-    with open('jsons/{fileName}.json') as json_file:
+    with open(f'jsons/{fileName}.json') as json_file:
         rawCodeJson = json.load(json_file)
     starterCode = rawCodeJson['problem']['starterCode']['code']
     referenceCode = rawCodeJson['problem']['referenceSolution']
