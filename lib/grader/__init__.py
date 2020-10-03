@@ -1,6 +1,7 @@
 from lxml import html
 import json
 import os
+import browser_cookie3
 
 
 def getWebPage(url, outputFile):
