@@ -13,12 +13,6 @@
 [md-pypi]: https://pypi.org/project/Markdown/
 [pyversion-button]: https://img.shields.io/pypi/pyversions/Markdown.svg
 
-This is a Python implementation of John Gruber's [Markdown][].
-It is almost completely compliant with the reference implementation,
-though there are a few known issues. See [Features][] for information
-on what exactly is supported and what is not. Additional features are
-supported by the [Available Extensions][].
-
 [python-markdown]: https://Python-Markdown.github.io/
 [markdown]: https://daringfireball.net/projects/markdown/
 [features]: https://Python-Markdown.github.io#Features
