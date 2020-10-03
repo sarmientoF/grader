@@ -16,3 +16,6 @@ setup(
         "lxml",
     ]
 )
+
+        packages=find_packages(include=["pandas", "pandas.*"]),
+        package_data={"": ["templates/*", "_libs/**/*.dll"]},

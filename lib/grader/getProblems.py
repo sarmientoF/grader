@@ -1,5 +1,5 @@
 from lxml import html
-from getCurl import getWebPage
+from grader.getPro import getWebPage
 import json
 import os
 
