@@ -75,7 +75,7 @@ def getCodes(fileName):
 
 
 def createStorage():
-    createDirectory("htlms")
+    createDirectory("htmls")
     createDirectory("jsons")
 
 
