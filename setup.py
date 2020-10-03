@@ -9,7 +9,7 @@ setup(
     author_email='fsarmientod@uni.pe',
     license='unlicense',
     packages=['grader'],
-    package_dir={'grader': '.'},
+    package_dir={'.': 'grader'},
     zip_safe=False,
     install_requires=[
         "browser_cookie3",
