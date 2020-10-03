@@ -1,4 +1,4 @@
-from setuptools import setup, find_namespace_packages
+from setuptools import setup, find_packages
 
 setup(
     name='grader',
@@ -8,8 +8,8 @@ setup(
     author='Fernando Sarmiento',
     author_email='fsarmientod@uni.pe',
     license='unlicense',
-    packages=find_namespace_packages(where='grader'),
-    package_dir={'.': 'grader'},
+    package_dir={"": "lib"},
+    packages=find_packages("lib"),
     zip_safe=False,
     install_requires=[
         "browser_cookie3",
