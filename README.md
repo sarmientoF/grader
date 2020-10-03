@@ -48,12 +48,14 @@ pip install git+https://github.com/sarmientoF/grader.git
 
 ## How to use it
 
-This code will create two folders(`htmls` and `jsons`) and a file `myGrader.json`(this contains all the codes of your matlab grader courses)
+- You must be loggeg with matlab grader account using `Firefox` browser
 
 ```python
 import grader
 grader.getGraderJson()
 ```
+
+- This code will create two folders(`htmls` and `jsons`) and a file `myGrader.json`(this contains all the codes of your matlab grader courses)
 
 ## Dependencies
 
