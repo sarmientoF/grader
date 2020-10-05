@@ -2,6 +2,7 @@ from lxml import html
 import json
 import os
 import browser_cookie3
+import re
 
 
 def getWebPage(url, outputFile):
@@ -100,7 +101,7 @@ def getGraderJson():
     for rawCourse in rawCourses:
         course = rawCourse.xpath(".//div/div/header/div/div/p/strong/a")[0]
         courseTitle = course.text
-        courseTitle = courseTitle.replace("/", "-")
+        courseTitle = re.sub(r"[^a-zA-Z0-9]+", '', courseTitle)
         courseUrl = graderUrl + course.attrib.get('href')
 
         courseTree = getTree(courseUrl, courseTitle)
@@ -109,7 +110,7 @@ def getGraderJson():
         for rawAssignment in rawAssignments[0: -1]:
             assignment = rawAssignment.xpath(".//div/div[1]/a")[0]
             assignmentTitle = assignment.text
-            assignmentTitle = assignmentTitle.replace(" ", "_")
+            assignmentTitle = re.sub(r"[^a-zA-Z0-9]+", '', assignmentTitle)
             assignmentUrl = graderUrl + assignment.attrib.get('href')
 
             assignmentTree = getTree(assignmentUrl, assignmentTitle)
@@ -119,7 +120,7 @@ def getGraderJson():
             for rawProblem in rawProblems:
                 problem = rawProblem.xpath(".//td/div/div[1]/a")[0]
                 problemTitle = problem.text + " Edit"
-                problemTitle = problemTitle.replace(" ", "_")
+                problemTitle = re.sub(r"[^a-zA-Z0-9]+", '', problemTitle)
                 problemUrl = graderUrl + problem.attrib.get('href') + "/edit"
 
                 problemTree = getTree(problemUrl, problemTitle)
