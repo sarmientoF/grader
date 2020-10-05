@@ -100,6 +100,7 @@ def getGraderJson():
     for rawCourse in rawCourses:
         course = rawCourse.xpath(".//div/div/header/div/div/p/strong/a")[0]
         courseTitle = course.text
+        courseTitle = courseTitle.replace("/", "-")
         courseUrl = graderUrl + course.attrib.get('href')
 
         courseTree = getTree(courseUrl, courseTitle)
