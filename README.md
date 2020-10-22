@@ -12,7 +12,6 @@
 
 [md-pypi]: https://pypi.org/project/Markdown/
 [pyversion-button]: https://img.shields.io/pypi/pyversions/Markdown.svg
-
 [python-markdown]: https://Python-Markdown.github.io/
 [markdown]: https://daringfireball.net/projects/markdown/
 [features]: https://Python-Markdown.github.io#Features
@@ -64,7 +63,37 @@ import grader
 grader.getGraderJson()
 ```
 
-- This code will create two folders(`htmls` and `jsons`) and a file `myGrader.json`(this contains all the codes of your matlab grader courses)
+- This code will create a file called `myGrader.json`(this contains the structure of your grader courses, such as: Courses, Assignments, Problems ...)
+
+```python
+import grader
+
+if __name__ == "__main__":
+    grader.saveProblems() ## MUST BE INSIDE MAIN THREAD
+```
+
+- This code will create a folder called `codes`(this contains all the problems contained in your grader courses)
+
+```sh
+├── codes
+│   ├── Electromagnetism
+│   │   ├── Capacitance
+│   │   │   ├── ProblemFivePartAEdit
+│   │   │   │   ├── reference.m
+│   │   │   │   └── starter.m
+│   │   │   ├── ProblemFivePartBEdit
+│   │   │   │   ├── reference.m
+│   │   │   │   └── starter.m
+│   │   │   ├── ProblemFourPartAEdit
+│   │   │   │   ├── reference.m
+│   │   │   │   └── starter.m
+│   │   │   ├── ProblemFourPartBEdit
+│   │   │   │   ├── reference.m
+│   │   │   │   └── starter.m
+.   .   .   .   .
+.   .   .   .   .
+.   .   .   .   .
+```
 
 ## Dependencies
 
