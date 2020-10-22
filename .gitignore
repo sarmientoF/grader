@@ -1,1 +1,9 @@
 .vscode
+.htmls
+codes
+lib/grader/htmls
+lib/grader/jsons
+testJson.ipynb
+myGrader.json
+threadDownload.py
+testMultiprocessing.py
