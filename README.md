@@ -147,7 +147,8 @@ if __name__ == "__main__": ## THIS IS MAIN THREAD
 
 ## Background
 
-- 3rd year [Systems and Control Engineering](https://educ.titech.ac.jp/sc/eng/) undergrad student at Tokyo Institute of Technology .
+- 4rd year [Systems and Control Engineering](https://educ.titech.ac.jp/sc/eng/) undergrad student at Tokyo Institute of Technology .
+- Freelance Full Stack Developer 
 - Intern at Pestalozzi Technology at IT [department](https://pestalozzi-tech.com/ja/company/members)
 - Scholarship holder of Japan Ministry of Education, Culture, Sports, Science and Technology([MEXT](https://www.mext.go.jp/en/))
 - [Android](https://play.google.com/store/apps/details?id=pestalozzi.tech.coachx), iOS, front end and backend developer
