@@ -6,6 +6,7 @@ import re
 import datetime
 import requests
 from lxml import html
+from git import Repo
 
 
 baseFolder = "codes"
@@ -218,7 +219,7 @@ def getGraderJson():
                 problem = rawProblem.xpath(".//td/div/div[1]/a")[0]
                 problemTitle = problem.text + " Edit"
                 problemTitle = re.sub(r"[^a-zA-Z0-9]+", '', problemTitle)
-                problemUrl = graderUrl + problem.attrib.get('href') + "/edit"
+                problemUrl = graderUrl + problem.attrib.get('href')
 
                 problemJson = {"title": problemTitle, "link": problemUrl}
                 ProblemsJson.append(problemJson)
@@ -237,7 +238,7 @@ def getGraderJson():
 
 def saveProblem(courseName, assignmentName, problem):
     name = problem["title"]
-    link = problem["link"]
+    link = problem["link"] + "/edit"
     dirName = f"{baseFolder}/{courseName}/{assignmentName}/{name}"
     # print(f'start file: {name} ({os.getpid()}) ...')
 
@@ -251,6 +252,7 @@ def saveProblem(courseName, assignmentName, problem):
     starterCode, referenceCode = getCodes(dirName)
     saveFile(f'{dirName}/reference.m', referenceCode)
     saveFile(f'{dirName}/starter.m', starterCode)
+    saveFile(f'{dirName}/.link.txt', problem["link"])
 
 
 def saveProblems():
@@ -280,13 +282,40 @@ def saveProblems():
 #######################################################
 
 
+def modifiedFiles():
+    repo = Repo()
+
+    changed_files = [file.b_path for file in repo.index.diff(None).iter_change_type("M") ]
+
+    changed_files += repo.untracked_files
+
+    changed_files = [file for file in changed_files if file.startswith("codes/") and file.endswith(".m")]
+
+    changed_files = ["/".join(file.split("/")[:-1]) for file in changed_files]
+
+    changed_files = list(dict.fromkeys(changed_files))
+    return changed_files
 
 
+def UploadModified():
+    print("🚨 Updating Modified files")
+    changed_files = modifiedFiles()
+    p = Pool(pools)
+
+    for file in changed_files:
+        p.apply_async(UploadChange, args=(file,))
+    print('🏁 Waiting for all subprocesses done...')
+    p.close()
+    p.join()
+    print('⌛️ All subprocesses done.')
 #######################################################
 ##################  Upload Changes   ##################
 #######################################################
 
 def UploadChange(path):
+    print(f"✍️ Updating {path}")
+    with open(f"{path}/.link.txt", 'r') as file:
+        url = file.read()
 
     with open(f"{path}/.problem.json", 'r') as file:
         problem = file.read()
@@ -306,7 +335,7 @@ def UploadChange(path):
 
     data_raw = repr(data_raw)
    
-    curlText = """curl 'https://grader.mathworks.com/courses/5949-fundamental-of-mechanics-1/assignments/58195-assignment-1/problems/221539-first-problem/instructor/save' -X POST \
+    curlText = """curl -s '%s/instructor/save' -X POST \
     -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:92.0) Gecko/20100101 Firefox/92.0' \
     -H 'Accept: */*' \
     -H 'Accept-Language: en-US,en;q=0.5' --compressed \
@@ -319,17 +348,21 @@ def UploadChange(path):
     -H 'Sec-Fetch-Dest: empty' \
     -H 'Sec-Fetch-Mode: cors' \
     -H 'Sec-Fetch-Site: same-origin' \
-    --data-raw $%s """%(csrf_token,_matlabgrader_session, mwa, mwa_session, data_raw)
+    --data-raw $%s   > /dev/null"""%(url,csrf_token,_matlabgrader_session, mwa, mwa_session, data_raw)
     saveFile("curlRaw.sh", curlText)
-    print(os.system(curlText))
+    os.system(curlText)
+    print(f"✅ Udated {path}")
 
 if __name__ == "__main__":
     # login()
     loadCredentials()
+    UploadModified()
     # getGraderJson()
     # saveProblems()
     # print("Hello 🚀")
-    UploadChange("FirstProblemEdit")
+    # UploadChange("FirstProblemEdit")
+
+    
     
 
     

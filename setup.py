@@ -12,7 +12,7 @@ setup(
     packages=find_packages("lib"),
     zip_safe=False,
     install_requires=[
-        "browser_cookie3",
+        "git",
         "lxml",
     ]
 )

@@ -1,9 +1,12 @@
 from multiprocessing import Pool
-from lxml import html
 import json
 import os
-import browser_cookie3
+import http.client
 import re
+import requests
+from lxml import html
+from git import Repo
+
 
 baseFolder = "codes"
 
@@ -11,38 +14,144 @@ startWith = "    var authoringApp = new AuthoringApp("
 endWith = ");\n"
 pools = 35
 
-def getWebPage(url, outputFile):
-    # url: the url you want to get info from
-    # outputFile: The outputFile name
-    try:
-        cookies = list(browser_cookie3.firefox())
-        adcloud = [x for x in cookies if x.name == "adcloud"][0].value
-        mwa = [x for x in cookies if x.name == "mwa"][0].value
-        mwa_profile = [x for x in cookies if x.name == "mwa_profile"][0].value
-        mwa_session = [x for x in cookies if x.name == "mwa_session"][0].value
 
-        # with open("cookies.json", "w") as text_file:
-        #     text_file.write(f"{adcloud}\n{mwa}\n{mwa_profile}\n{mwa_session}")
-        curl = f"""curl '{url}' -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.16; rv:81.0) Gecko/20100101 Firefox/81.0' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8' -H 'Accept-Language: en-US,en;q=0.5' --compressed -H 'Referer: https://www.mathworks.com/login?uri=https://grader.mathworks.com/' -H 'Connection: keep-alive' -H 'Cookie: _matlabgrader_session=ZGRjMzVyNzJuQU1mTmJUN3hDZXZKYTdwV3dGY1FVZjZxekoyU0gvR1ozQWRrbVFJclc5SnZwWVJ1djJ6Z0YxYmVYY3l0NGttNUJCVU1laklhaVNBd3BtcDJZRWtRVDdnZWRIaWE2V1VzMVNFc2kxSVQ3ME5MSXVrYVJoOExyT1U5enBEY240ZGZlOVhuRmtHNjBTOERhQTlXZ0hsN2owQ3hyMUZac3haWnJTZ2tTM0hUdjNNbEE3VWs1RVlkNG5YLS1abG04Ty93Zmxld3VNQllrM2tXTGJ3PT0=--aec4efb16a8e0f0000ebfa6507e318883a6aa323; _sdsat_session_count=2; _sdsat_lt_pages_viewed=71; AMCV_B1441C8B533095C00A490D4D@AdobeOrg=281789898|MCIDTS|18536|MCMID|39851645893515184602107407447943167383|MCAID|NONE|MCOPTOUT-1601545895s|NONE|MCAAMLH-1602143495|11|MCAAMB-1602143495|j8Odv6LonN4r3an7LhD3WZrU1bUpAkFkkiY1ncBR96t2PTI|MCSYNCSOP|411-18543|vVersion|4.1.0|MCCIDH|1241395866; mbox=PC#bc7f129c232540e2b511eedc6e3a0306.32_0#1664710711|session#e4d14e4ec73b43258f0d370f3730e776#1601541235; s_ecid=MCMID|39851645893515184602107407447943167383; RT="z=1&dm=grader.mathworks.com&si=3e4625f8-0eee-46ec-b9f0-f806da8e5686&ss=kfqech6g&sl=y&tt=1eh6&bcn=//684d0d3f.akstat.io/&ld=4uh35&ul=4v777"; adcloud={adcloud}; _fbp=fb.1.1601465913977.37442848; ELOQUA=GUID=8b9e1312af0c4836b9ec57a348d6cdff; _sdsat_landing_page=https://grader.mathworks.com/|1601520493270; _sdsat_pages_viewed=59; _sdsat_traffic_source=https://www.google.com/; _sdsat_Eloqua2=8b9e1312af0c4836b9ec57a348d6cdff; check=true; AMCVS_B1441C8B533095C00A490D4D@AdobeOrg=1; s_cc=true; s_sq=[[B]]; dtCookie=v_4_srv_6_sn_786D8A9361A79FD657C0162706B8D320_perc_100000_ol_0_mul_1; _uetsid=429921494131589ea1eb3ed8c9325438; _uetvid=df5fb787fff3e2a1dff00f3c135ac62a; mwa={mwa}; mwa_profile={mwa_profile}; mwa_session={mwa_session}' -H 'Upgrade-Insecure-Requests: 1' -H 'Pragma: no-cache' -H 'Cache-Control: no-cache'"""
-        os.system(f"""{curl} -o '{outputFile}' --silent""")
-        return {"status": 200}
-    except Exception as e:
-        return {"status": 404}
+def saveFile(name, data):
+    with open(name, "w") as text_file:
+        text_file.write(data)
+
+def login():
+    conn = http.client.HTTPSConnection("login.mathworks.com")
+
+    payload = "identifier=sarmiento.f.aa%40m.titech.ac.jp&credentials=fegasadi11J&type=MWAR&profileTier=dotcom&release=1.1&platform=web&entitlementId=&mfaTokenString=&sourceId=&userAgent=Mozilla%2F5.0+(Macintosh%3B+Intel+Mac+OS+X+10.15%3B+rv%3A91.0)+Gecko%2F20100101+Firefox%2F91.0"
+
+    headers = {
+        'Accept': "application/json",
+        'X_MW_WS_callerId': "WEB-login",
+        'X-Requested-With': "XMLHttpRequest",
+        'Origin': "https://login.mathworks.com"
+        }
+
+    conn.request("POST", "/authenticationws/service/v4/login", payload, headers)
+
+    res = conn.getresponse()
+    data = res.read()
+    data = json.loads(data.decode("utf-8"))
+    tokenString = data["tokenString"]
+   
+
+    ###########################################################################################################################
+
+    url = "https://login.mathworks.com/embedded-login/v2/cookies"
+
+    payload = f"token={tokenString}&sourceId=&session=false"
+
+    headers = {
+        'User-Agent': "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:92.0) Gecko/20100101 Firefox/92.0",
+        'Accept': "text/plain, */*; q=0.01",
+        'Accept-Language': "en-US,en;q=0.5",
+        'Content-Type': "application/x-www-form-urlencoded; charset=UTF-8",
+        'X_MW_WS_requestId': "22539b52-c508-4ebf-af17-22dcb7daa082",
+        'X-Requested-With': "XMLHttpRequest",
+        'Origin': "https://login.mathworks.com",
+        'Connection': "keep-alive",
+        'Referer': "https://login.mathworks.com/embedded-login/v2/login.html?locale=en",
+        'Sec-Fetch-Dest': "empty",
+        'Sec-Fetch-Mode': "cors",
+        'Sec-Fetch-Site': "same-origin",
+        'TE': "trailers"
+        }
+
+    response = requests.request("POST", url, data=payload, headers=headers)
+
+    mwa = response.cookies["mwa"]
+    mwa_session = response.cookies["mwa_session"]
+
+    ###########################################################################################################################
+    url = "https://grader.mathworks.com/"
+
+    payload = ""
+
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:92.0) Gecko/20100101 Firefox/92.0",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Referer": "https://www.mathworks.com/",
+        "Connection": "keep-alive",
+        "Cookie": """mwa=%s; mwa_session=%s"""%(mwa, mwa_session),
+        "Upgrade-Insecure-Requests": "1",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "same-site",
+        "Sec-Fetch-User": "?1",
+        "Cache-Control": "max-age=0"
+    }
+
+    response = requests.request("GET", url, data=payload, headers=headers)
+    tree = html.fromstring(response.text)
+
+    saveFile("main.html", response.text)
+    X_CSRF_Token = "/html/head/meta[5]"
+
+    csrf_token_ref = tree.xpath(X_CSRF_Token)
+
+    csrf_token = csrf_token_ref[0].attrib.get("content")
+
+    _matlabgrader_session = response.cookies["_matlabgrader_session"]
+
+    saveFile(".credentials.json", json.dumps({"mwa": mwa, "mwa_session": mwa_session, "_matlabgrader_session": _matlabgrader_session, "csrf_token": csrf_token}))
+
+    print("🚀 Successfully logged in")
+    return mwa, mwa_session, _matlabgrader_session
+
+def loadCredentials():
+    try:
+        with open(".credentials.json", "r") as file:
+            creds = json.loads(file.read())
+        global mwa
+        global mwa_session
+        global _matlabgrader_session
+        global csrf_token
+
+        mwa = creds["mwa"]
+        mwa_session =  creds["mwa_session"]
+        _matlabgrader_session =  creds["_matlabgrader_session"]
+        csrf_token =  creds["csrf_token"]
+        print("🚀 Credentials Loaded")
+    except:
+        print("🚨 Log in first")
+
+def get_page(url, outputFile):
+    payload = ""
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:92.0) Gecko/20100101 Firefox/92.0",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Referer": "https://www.mathworks.com/",
+        "Connection": "keep-alive",
+        "Cookie": """mwa=%s; mwa_session=%s"""%(mwa, mwa_session),
+        "Upgrade-Insecure-Requests": "1",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "same-site",
+        "Sec-Fetch-User": "?1",
+        "Cache-Control": "max-age=0"
+    }
+
+    response = requests.request("GET", url, data=payload, headers=headers)
+
+    saveFile(outputFile, response.text)
+    return {"status": response.status_code}
 
 
 def createDirectory(dirName):
     if not os.path.exists(dirName):
         os.makedirs(f"{dirName}")
 
-def saveFile(name, data):
-    with open(name, "w") as text_file:
-        text_file.write(data)
-
 
 def getTree(url, name):
     fileName = f'.htmls/{name}.html'
     print(fileName)
-    getWebPage(url, fileName)
+    get_page(url, fileName)
     with open(fileName, 'r') as file:
         page = file.read()
     tree = html.fromstring(page)
@@ -51,7 +160,7 @@ def getTree(url, name):
 
 def getPageLine(dir, startWith):
     fileName = f'{dir}/.page.html'
-    # print(getWebPage(url, fileName), os.getpid())
+    # print(get_page(url, fileName), os.getpid())
     with open(fileName, 'r') as file:
         id = []
         for ln in file:
@@ -68,6 +177,8 @@ def getCodes(dir):
     return starterCode, referenceCode
 
 
+
+
 def getGraderJson():
     createDirectory(".htmls")
 
@@ -79,6 +190,7 @@ def getGraderJson():
     assignmentXpath = "/html/body/div[2]/div[1]/nav/div/div/div/div/ul/li/ul[2]/li"
     problemXpath = "/html/body/div[2]/div[2]/div/div/div/div[2]/div/div[2]/div/table/tbody/tr"
     codeXpath = "/html/body/div[2]/div[2]/div/div/div/div[2]/div/div[6]/div/div[2]/section/div/div/div[5]/div/div[6]/div[4]/div[2]/div/div[3]/div"
+
 
     rawCourses = graderTree.xpath(activeCoursesXpath)
 
@@ -106,7 +218,7 @@ def getGraderJson():
                 problem = rawProblem.xpath(".//td/div/div[1]/a")[0]
                 problemTitle = problem.text + " Edit"
                 problemTitle = re.sub(r"[^a-zA-Z0-9]+", '', problemTitle)
-                problemUrl = graderUrl + problem.attrib.get('href') + "/edit"
+                problemUrl = graderUrl + problem.attrib.get('href')
 
                 problemJson = {"title": problemTitle, "link": problemUrl}
                 ProblemsJson.append(problemJson)
@@ -125,12 +237,12 @@ def getGraderJson():
 
 def saveProblem(courseName, assignmentName, problem):
     name = problem["title"]
-    link = problem["link"]
+    link = problem["link"] + "/edit"
     dirName = f"{baseFolder}/{courseName}/{assignmentName}/{name}"
     # print(f'start file: {name} ({os.getpid()}) ...')
 
     createDirectory(dirName)
-    getWebPage(link, f"{dirName}/.page.html")
+    get_page(link, f"{dirName}/.page.html")
 
     codeLine = getPageLine(dirName, startWith)[0]
     codeLine = codeLine[codeLine.find('{'): - len(endWith)]
@@ -139,6 +251,8 @@ def saveProblem(courseName, assignmentName, problem):
     starterCode, referenceCode = getCodes(dirName)
     saveFile(f'{dirName}/reference.m', referenceCode)
     saveFile(f'{dirName}/starter.m', starterCode)
+    saveFile(f'{dirName}/.link.txt', problem["link"])
+
 
 def saveProblems():
 
@@ -161,3 +275,79 @@ def saveProblems():
     p.close()
     p.join()
     print('All subprocesses done.')
+
+#######################################################
+##################    Get  Changes   ##################
+#######################################################
+
+
+def modifiedFiles():
+    repo = Repo()
+
+    changed_files = [file.b_path for file in repo.index.diff(None).iter_change_type("M") ]
+
+    changed_files += repo.untracked_files
+
+    changed_files = [file for file in changed_files if file.startswith("codes/") and file.endswith(".m")]
+
+    changed_files = ["/".join(file.split("/")[:-1]) for file in changed_files]
+
+    changed_files = list(dict.fromkeys(changed_files))
+    return changed_files
+
+
+def UploadModified():
+    print("🚨 Updating Modified files")
+    changed_files = modifiedFiles()
+    p = Pool(pools)
+
+    for file in changed_files:
+        p.apply_async(UploadChange, args=(file,))
+    print('🏁 Waiting for all subprocesses done...')
+    p.close()
+    p.join()
+    print('⌛️ All subprocesses done.')
+#######################################################
+##################  Upload Changes   ##################
+#######################################################
+
+def UploadChange(path):
+    print(f"✍️ Updating {path}")
+    with open(f"{path}/.link.txt", 'r') as file:
+        url = file.read()
+
+    with open(f"{path}/.problem.json", 'r') as file:
+        problem = file.read()
+
+    with open(f"{path}/starter.m", 'r') as file:
+        starter = file.read()
+
+    with open(f"{path}/reference.m", 'r') as file:
+        reference = file.read()
+
+    problemJson = json.loads(problem)
+
+    problemJson["problem"]["starterCode"]["code"] = starter
+    problemJson["problem"]["referenceSolution"] = reference
+    
+    data_raw = json.dumps({"session": problemJson["session"], "problem": problemJson["problem"]}, separators=(',',':'))
+
+    data_raw = repr(data_raw)
+   
+    curlText = """curl -s '%s/instructor/save' -X POST \
+    -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:92.0) Gecko/20100101 Firefox/92.0' \
+    -H 'Accept: */*' \
+    -H 'Accept-Language: en-US,en;q=0.5' --compressed \
+    -H 'X-CSRF-Token: %s'\
+    -H 'Content-Type: application/json' \
+    -H 'X-Requested-With: XMLHttpRequest' \
+    -H 'Origin: https://grader.mathworks.com' \
+    -H 'Connection: keep-alive' \
+    -H 'Cookie: _matlabgrader_session=%s; mwa=%s; mwa_session=%s' \
+    -H 'Sec-Fetch-Dest: empty' \
+    -H 'Sec-Fetch-Mode: cors' \
+    -H 'Sec-Fetch-Site: same-origin' \
+    --data-raw $%s   > /dev/null"""%(url,csrf_token,_matlabgrader_session, mwa, mwa_session, data_raw)
+    # saveFile("curlRaw.sh", curlText)
+    os.system(curlText)
+    print(f"✅ Udated {path}")
