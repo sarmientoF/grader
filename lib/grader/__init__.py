@@ -90,7 +90,6 @@ def login(email, password):
     response = requests.request("GET", url, data=payload, headers=headers)
     tree = html.fromstring(response.text)
 
-    saveFile("main.html", response.text)
     X_CSRF_Token = "/html/head/meta[5]"
 
     csrf_token_ref = tree.xpath(X_CSRF_Token)
