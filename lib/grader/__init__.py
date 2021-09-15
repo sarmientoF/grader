@@ -19,10 +19,11 @@ def saveFile(name, data):
     with open(name, "w") as text_file:
         text_file.write(data)
 
-def login():
+def login(email, password):
     conn = http.client.HTTPSConnection("login.mathworks.com")
+    payload = "identifier=%s&credentials=%s&type=MWAR&profileTier=dotcom&release=1.1&platform=web&entitlementId=&mfaTokenString=&sourceId=&userAgent=Mozilla/5.0+(Macintosh;+Intel+Mac+OS+X+10.15;+rv:91.0)+Gecko/20100101+Firefox/91.0"%(email, password)
 
-    payload = "identifier=sarmiento.f.aa%40m.titech.ac.jp&credentials=fegasadi11J&type=MWAR&profileTier=dotcom&release=1.1&platform=web&entitlementId=&mfaTokenString=&sourceId=&userAgent=Mozilla%2F5.0+(Macintosh%3B+Intel+Mac+OS+X+10.15%3B+rv%3A91.0)+Gecko%2F20100101+Firefox%2F91.0"
+    # payload = "identifier=sarmiento.f.aa%40m.titech.ac.jp&credentials=fegasadi11J&type=MWAR&profileTier=dotcom&release=1.1&platform=web&entitlementId=&mfaTokenString=&sourceId=&userAgent=Mozilla%2F5.0+(Macintosh%3B+Intel+Mac+OS+X+10.15%3B+rv%3A91.0)+Gecko%2F20100101+Firefox%2F91.0"
 
     headers = {
         'Accept': "application/json",
