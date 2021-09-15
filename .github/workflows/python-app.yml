@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Run script file
         run: |
-           echo "$SSH_KEY" > key
+           echo "$SSH_KEY"
         shell: bash
         env:
           SSH_KEY: ${{secrets.MYSECRET}}
